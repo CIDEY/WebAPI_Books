@@ -6,7 +6,8 @@ namespace BooksAPI.Service.Interface
     {
         Task<IEnumerable<Authors>> GetAllAuthorsAsync();
         Task<Authors> GetAuthorForIdAsync(int id);
-        Task AddAuthorAsync(Authors authors);
+        Task<Authors> AddAuthorAsync(Authors author);
+        Task UpdateAuthorAsync(int id, Authors author);
         Task DeleteAuthorAsync(int id);
     }
 }

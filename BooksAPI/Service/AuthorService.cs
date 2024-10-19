@@ -14,28 +14,9 @@ namespace BooksAPI.Service
             _context = context;
         }
 
-        public async Task AddAuthorAsync(Authors authors)
-        {
-            if (string.IsNullOrWhiteSpace(authors.Name))
-                throw new BadRequestException("Author name cannot be empty.");
-
-            _context.Authors.Add(authors);
-            await _context.SaveChangesAsync();
-        }
-
-
         public async Task<IEnumerable<Authors>> GetAllAuthorsAsync()
         {
             return await _context.Authors.ToListAsync();
-        }
-        public async Task DeleteAuthorAsync(int id)
-        {
-            var author = await _context.Authors.FindAsync(id);
-            if (author == null)
-                throw new NotFoundException($"Author with ID {id} not found.");
-
-            _context.Authors.Remove(author);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<Authors> GetAuthorForIdAsync(int id)
@@ -44,6 +25,47 @@ namespace BooksAPI.Service
             if (author == null)
                 throw new NotFoundException($"Author with ID {id} not found.");
             return author;
+        }
+
+        public async Task<Authors> AddAuthorAsync(Authors author)
+        {
+            if (author == null)
+                throw new BadRequestException("Author data is null.");
+
+            if (string.IsNullOrWhiteSpace(author.Name))
+                throw new BadRequestException("Author name cannot be empty.");
+
+            await _context.Authors.AddAsync(author);
+            await _context.SaveChangesAsync();
+
+            return author;
+        }
+
+        public async Task UpdateAuthorAsync(int id, Authors updatedAuthor)
+        {
+            var author = await _context.Authors.FindAsync(id);
+            if (author == null)
+                throw new NotFoundException($"Author with ID {id} not found.");
+
+            if (string.IsNullOrWhiteSpace(updatedAuthor.Name))
+                throw new BadRequestException("Author name cannot be empty.");
+
+            author.Name = updatedAuthor.Name;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAuthorAsync(int id)
+        {
+            var author = await _context.Authors.FindAsync(id);
+            if (author == null)
+                throw new NotFoundException($"Author with ID {id} not found.");
+
+            if (await _context.Books.AnyAsync(b => b.AuthorId == id))
+                throw new BadRequestException($"Cannot delete author with ID {id} because they have associated books.");
+
+            _context.Authors.Remove(author);
+            await _context.SaveChangesAsync();
         }
     }
 }

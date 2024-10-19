@@ -18,45 +18,39 @@ namespace BooksAPI.Controllers
             _authorService = authorService;
         }
 
-        [HttpGet("All")]
+        [HttpGet]
         public async Task<IActionResult> GetAllAuthors()
         {
             var authors = await _authorService.GetAllAuthorsAsync();
-
-            return Ok(new
-            {
-                Authors = authors,
-                Status = true
-            });
+            return Ok(authors);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetAuthorsForId(int id)
+        public async Task<IActionResult> GetAuthor(int id)
         {
-            var authors = await _authorService.GetAuthorForIdAsync(id);
-
-            return Ok(new
-            {
-                Authors = authors,
-                Status = true
-            });
+            var author = await _authorService.GetAuthorForIdAsync(id);
+            return Ok(author);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddAuthor(Authors authors)
+        public async Task<IActionResult> AddAuthor([FromBody] Authors author)
         {
-            await _authorService.AddAuthorAsync(authors);
+            var newAuthor = await _authorService.AddAuthorAsync(author);
+            return CreatedAtAction(nameof(GetAuthor), new { id = newAuthor.Id }, newAuthor);
+        }
 
-            return CreatedAtAction(nameof(GetAuthorsForId), new { id = authors.Id }, authors);
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAuthor(int id, [FromBody] Authors author)
+        {
+            await _authorService.UpdateAuthorAsync(id, author);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAuthor(int id)
         {
-            var author = await _authorService.GetAuthorForIdAsync(id);
-
             await _authorService.DeleteAuthorAsync(id);
-            return NoContent(); // Возвращаем статус 204 No Content
+            return NoContent();
         }
     }
 }

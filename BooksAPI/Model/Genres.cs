@@ -6,6 +6,9 @@ namespace BooksAPI.Model
     {
         [Key]
         public int Id { get; set; }
+
+        [Required(ErrorMessage = "Genre name is required")]
+        [StringLength(100, ErrorMessage = "Genre name cannot be longer than 100 characters")]
         public string Name { get; set; }
     }
 }

@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-using BooksAPI.DBContextAPI;
+﻿using BooksAPI.Middleware.CustomException;
 using BooksAPI.Model;
-using BooksAPI.Service;
 using BooksAPI.Service.Interface;
+using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace BooksAPI.Controllers
 {
@@ -34,30 +32,58 @@ namespace BooksAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBookForId(int id)
         {
-            var books = await _bookService.GetBookForIdAsync(id);
-
-            return Ok(new
+            try
             {
-                Books = books,
-                Status = true
-            });
+                var book = await _bookService.GetBookForIdAsync(id);
+                return Ok(new { Book = book, Status = true });
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message, Status = false });
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> AddBook(Books books)
         {
-            await _bookService.AddBookAsync(books);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new
+                {
+                    Message = "Invalid input data",
+                    Errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)),
+                    Status = false
+                });
+            }
 
-            return CreatedAtAction(nameof(GetBookForId), new { id = books.Id }, books);
+            try
+            {
+                await _bookService.AddBookAsync(books);
+                return CreatedAtAction(nameof(GetBookForId), new { id = books.Id }, new { Book = books, Status = true });
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { Message = ex.Message, Status = false });
+            }
+            catch (Exception ex)
+            {
+                // Логирование исключения
+                return StatusCode(500, new { Message = "An error occurred while processing your request", Status = false });
+            }
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteGenre(int id)
+        public async Task<IActionResult> DeleteBook(int id)
         {
-            var books = await _bookService.GetBookForIdAsync(id);
-
-            await _bookService.DeleteBookAsync(id);
-            return NoContent(); // Возвращаем статус 204 No Content
+            try
+            {
+                await _bookService.DeleteBookAsync(id);
+                return NoContent();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message, Status = false });
+            }
         }
     }
 }

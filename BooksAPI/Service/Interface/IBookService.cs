@@ -6,7 +6,8 @@ namespace BooksAPI.Service.Interface
     {
         Task<IEnumerable<Books>> GetAllBooksAsync();
         Task<Books> GetBookForIdAsync(int id);
-        Task AddBookAsync(Books genre);
+        Task<Books> AddBookAsync(Books genre);
         Task DeleteBookAsync(int id);
+        Task UpdateBookAsync(int id, Books book);
     }
 }
