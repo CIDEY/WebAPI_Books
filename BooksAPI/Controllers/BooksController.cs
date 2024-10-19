@@ -9,7 +9,8 @@ using System.ComponentModel.DataAnnotations;
 namespace BooksAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class BooksController : Controller
     {
         private readonly IBookService _bookService;

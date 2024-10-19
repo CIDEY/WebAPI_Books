@@ -9,7 +9,8 @@ using BooksAPI.Model.FilterSort;
 namespace BooksAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class GenresController : Controller
     {
         private readonly IGenreService _genreService;
