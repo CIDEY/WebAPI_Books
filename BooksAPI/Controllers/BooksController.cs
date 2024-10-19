@@ -19,20 +19,38 @@ namespace BooksAPI.Controllers
         }
 
         /// <summary>
-        /// Returns a list of books
+        /// Returns a paginated list of books
         /// </summary>
-        /// <returns>List of books</returns>
-        [HttpGet("All")]
-        public async Task<IActionResult> GetAllBooks()
+        /// <param name="pageNumber">Page number (default: 1)</param>
+        /// <param name="pageSize">Number of items per page (default: 10)</param>
+        /// <returns>Paginated list of books</returns>
+        [HttpGet]
+        public async Task<IActionResult> GetAllBooks([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var books = await _bookService.GetAllBooksAsync();
+            if (pageNumber < 1)
+            {
+                return BadRequest("Page number must be greater than 0.");
+            }
 
-            return Ok(new 
-            { 
-                Books = books,
+            if (pageSize < 1 || pageSize > 100)
+            {
+                return BadRequest("Page size must be between 1 and 100.");
+            }
+
+            var books = await _bookService.GetAllBooksAsync(pageNumber, pageSize);
+
+            return Ok(new
+            {
+                Books = books.Items,
+                books.PageNumber,
+                books.TotalPages,
+                books.TotalCount,
+                books.HasPreviousPage,
+                books.HasNextPage,
                 Status = true
             });
         }
+
         /// <summary>
         /// Returns the book by the specified identifier.
         /// </summary>

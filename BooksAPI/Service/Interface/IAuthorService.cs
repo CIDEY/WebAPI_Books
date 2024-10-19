@@ -4,7 +4,7 @@ namespace BooksAPI.Service.Interface
 {
     public interface IAuthorService
     {
-        Task<IEnumerable<Authors>> GetAllAuthorsAsync();
+        Task<PaginatedList<Authors>> GetAllAuthorsAsync(int pageNumber, int pageSize);
         Task<Authors> GetAuthorForIdAsync(int id);
         Task<Authors> AddAuthorAsync(Authors author);
         Task UpdateAuthorAsync(int id, Authors author);

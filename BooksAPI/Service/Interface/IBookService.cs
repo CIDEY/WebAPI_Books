@@ -4,7 +4,7 @@ namespace BooksAPI.Service.Interface
 {
     public interface IBookService
     {
-        Task<IEnumerable<Books>> GetAllBooksAsync();
+        Task<PaginatedList<Books>> GetAllBooksAsync(int pageNumber, int pageSize);
         Task<Books> GetBookForIdAsync(int id);
         Task<Books> AddBookAsync(Books genre);
         Task DeleteBookAsync(int id);

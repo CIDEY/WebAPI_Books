@@ -19,14 +19,36 @@ namespace BooksAPI.Controllers
         }
 
         /// <summary>
-        /// Returns a list of authors
+        /// Returns a paginated list of authors
         /// </summary>
-        /// <returns>List of authors</returns>
+        /// <param name="pageNumber">Page number (default: 1)</param>
+        /// <param name="pageSize">Number of items per page (default: 10)</param>
+        /// <returns>Paginated list of authors</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllAuthors()
+        public async Task<IActionResult> GetAllAuthors([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var authors = await _authorService.GetAllAuthorsAsync();
-            return Ok(authors);
+            if (pageNumber < 1)
+            {
+                return BadRequest("Page number must be greater than 0.");
+            }
+
+            if (pageSize < 1 || pageSize > 100)
+            {
+                return BadRequest("Page size must be between 1 and 100.");
+            }
+
+            var authors = await _authorService.GetAllAuthorsAsync(pageNumber, pageSize);
+
+            return Ok(new
+            {
+                Authors = authors.Items,
+                authors.PageNumber,
+                authors.TotalPages,
+                authors.TotalCount,
+                authors.HasPreviousPage,
+                authors.HasNextPage,
+                Status = true
+            });
         }
 
         /// <summary>

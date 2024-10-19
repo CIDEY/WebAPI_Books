@@ -18,12 +18,17 @@ namespace BooksAPI.Service
             _context = context;
         }
 
-        public async Task<IEnumerable<Books>> GetAllBooksAsync()
+        public async Task<PaginatedList<Books>> GetAllBooksAsync(int pageNumber, int pageSize)
         {
-            return await _context.Books
+            var query = _context.Books
                 .Include(b => b.Author)
                 .Include(b => b.Genres)
-                .ToListAsync();
+                .AsNoTracking();
+
+            var count = await query.CountAsync();
+            var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            return new PaginatedList<Books>(items, count, pageNumber, pageSize);
         }
 
         public async Task<Books> GetBookForIdAsync(int id)

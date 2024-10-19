@@ -19,17 +19,34 @@ namespace BooksAPI.Controllers
         }
 
         /// <summary>
-        /// Returns a list of Genres
+        /// Returns a paginated list of genres
         /// </summary>
-        /// <returns>List of Genres</returns>
-        [HttpGet("All")]
-        public async Task<IActionResult> GetAllGenres()
+        /// <param name="pageNumber">Page number (default: 1)</param>
+        /// <param name="pageSize">Number of items per page (default: 10)</param>
+        /// <returns>Paginated list of genres</returns>
+        [HttpGet]
+        public async Task<IActionResult> GetAllGenres([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var genres = await _genreService.GetAllGenresAsync();
+            if (pageNumber < 1)
+            {
+                return BadRequest("Page number must be greater than 0.");
+            }
+
+            if (pageSize < 1 || pageSize > 100)
+            {
+                return BadRequest("Page size must be between 1 and 100.");
+            }
+
+            var genres = await _genreService.GetAllGenresAsync(pageNumber, pageSize);
 
             return Ok(new
             {
-                Genres = genres,
+                Genres = genres.Items,
+                genres.PageNumber,
+                genres.TotalPages,
+                genres.TotalCount,
+                genres.HasPreviousPage,
+                genres.HasNextPage,
                 Status = true
             });
         }
