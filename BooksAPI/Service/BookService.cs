@@ -6,6 +6,7 @@ using BooksAPI.Middleware.CustomException;
 using BooksAPI.Model;
 using BooksAPI.Service.Interface;
 using System.ComponentModel.DataAnnotations;
+using BooksAPI.Model.FilterSort;
 
 namespace BooksAPI.Service
 {
@@ -18,12 +19,65 @@ namespace BooksAPI.Service
             _context = context;
         }
 
-        public async Task<PaginatedList<Books>> GetAllBooksAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedList<Books>> GetAllBooksAsync(int pageNumber, int pageSize, BookParameters parameters)
         {
             var query = _context.Books
                 .Include(b => b.Author)
                 .Include(b => b.Genres)
                 .AsNoTracking();
+
+            // Применяем фильтры
+            if (!string.IsNullOrWhiteSpace(parameters.SearchTerm))
+            {
+                query = query.Where(b => b.Title.Contains(parameters.SearchTerm) ||
+                                         b.Author.Name.Contains(parameters.SearchTerm) ||
+                                         b.Genres.Name.Contains(parameters.SearchTerm));
+            }
+
+            if (parameters.MinYear.HasValue)
+                query = query.Where(b => b.PublicationYear >= parameters.MinYear.Value);
+
+            if (parameters.MaxYear.HasValue)
+                query = query.Where(b => b.PublicationYear <= parameters.MaxYear.Value);
+
+            if (parameters.MinRating.HasValue)
+                query = query.Where(b => b.Rating >= parameters.MinRating.Value);
+
+            if (parameters.MaxRating.HasValue)
+                query = query.Where(b => b.Rating <= parameters.MaxRating.Value);
+
+            // Применяем сортировку
+            if (!string.IsNullOrWhiteSpace(parameters.SortBy))
+            {
+                switch (parameters.SortBy.ToLower())
+                {
+                    case "title":
+                        query = parameters.SortDescending
+                            ? query.OrderByDescending(b => b.Title)
+                            : query.OrderBy(b => b.Title);
+                        break;
+                    case "year":
+                        query = parameters.SortDescending
+                            ? query.OrderByDescending(b => b.PublicationYear)
+                            : query.OrderBy(b => b.PublicationYear);
+                        break;
+                    case "rating":
+                        query = parameters.SortDescending
+                            ? query.OrderByDescending(b => b.Rating)
+                            : query.OrderBy(b => b.Rating);
+                        break;
+                    case "author":
+                        query = parameters.SortDescending
+                            ? query.OrderByDescending(b => b.Author.Name)
+                            : query.OrderBy(b => b.Author.Name);
+                        break;
+                    default:
+                        query = query.OrderBy(b => b.Id);
+                        break;
+                }
+            }
+            else
+                query = query.OrderBy(b => b.Id);
 
             var count = await query.CountAsync();
             var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();

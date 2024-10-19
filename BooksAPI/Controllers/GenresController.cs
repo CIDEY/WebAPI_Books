@@ -4,6 +4,7 @@ using BooksAPI.DBContextAPI;
 using BooksAPI.Model;
 using BooksAPI.Service.Interface;
 using BooksAPI.Service;
+using BooksAPI.Model.FilterSort;
 
 namespace BooksAPI.Controllers
 {
@@ -25,19 +26,27 @@ namespace BooksAPI.Controllers
         /// <param name="pageSize">Number of items per page (default: 10)</param>
         /// <returns>Paginated list of genres</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllGenres([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetAllGenres(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? searchTerm = null,
+            [FromQuery] string? sortBy = null,
+            [FromQuery] bool sortDescending = false)
         {
             if (pageNumber < 1)
-            {
                 return BadRequest("Page number must be greater than 0.");
-            }
 
             if (pageSize < 1 || pageSize > 100)
-            {
                 return BadRequest("Page size must be between 1 and 100.");
-            }
 
-            var genres = await _genreService.GetAllGenresAsync(pageNumber, pageSize);
+            var parameters = new GenreParameters
+            {
+                SearchTerm = searchTerm,
+                SortBy = sortBy,
+                SortDescending = sortDescending
+            };
+
+            var genres = await _genreService.GetAllGenresAsync(pageNumber, pageSize, parameters);
 
             return Ok(new
             {

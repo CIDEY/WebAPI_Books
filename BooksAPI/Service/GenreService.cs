@@ -3,6 +3,7 @@ using BooksAPI.DBContextAPI;
 using BooksAPI.Middleware.CustomException;
 using BooksAPI.Model;
 using BooksAPI.Service.Interface;
+using BooksAPI.Model.FilterSort;
 
 namespace BooksAPI.Service
 {
@@ -14,9 +15,35 @@ namespace BooksAPI.Service
         {
             _context = context;
         }
-        public async Task<PaginatedList<Genres>> GetAllGenresAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedList<Genres>> GetAllGenresAsync(int pageNumber, int pageSize, GenreParameters parameters)
         {
             var query = _context.Genres.AsNoTracking();
+
+            // Применяем фильтр
+            if (!string.IsNullOrWhiteSpace(parameters.SearchTerm))
+            {
+                query = query.Where(g => g.Name.Contains(parameters.SearchTerm));
+            }
+
+            // Применяем сортировку
+            if (!string.IsNullOrWhiteSpace(parameters.SortBy))
+            {
+                switch (parameters.SortBy.ToLower())
+                {
+                    case "name":
+                        query = parameters.SortDescending
+                            ? query.OrderByDescending(g => g.Name)
+                            : query.OrderBy(g => g.Name);
+                        break;
+                    default:
+                        query = query.OrderBy(g => g.Id);
+                        break;
+                }
+            }
+            else
+            {
+                query = query.OrderBy(g => g.Id);
+            }
 
             var count = await query.CountAsync();
             var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();

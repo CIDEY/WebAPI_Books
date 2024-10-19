@@ -1,5 +1,6 @@
 ﻿using BooksAPI.Middleware.CustomException;
 using BooksAPI.Model;
+using BooksAPI.Model.FilterSort;
 using BooksAPI.Service;
 using BooksAPI.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -25,19 +26,35 @@ namespace BooksAPI.Controllers
         /// <param name="pageSize">Number of items per page (default: 10)</param>
         /// <returns>Paginated list of books</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllBooks([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetAllBooks(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? searchTerm = null,
+            [FromQuery] int? minYear = null,
+            [FromQuery] int? maxYear = null,
+            [FromQuery] double? minRating = null,
+            [FromQuery] double? maxRating = null,
+            [FromQuery] string? sortBy = null,
+            [FromQuery] bool sortDescending = false)
         {
             if (pageNumber < 1)
-            {
                 return BadRequest("Page number must be greater than 0.");
-            }
 
             if (pageSize < 1 || pageSize > 100)
-            {
                 return BadRequest("Page size must be between 1 and 100.");
-            }
 
-            var books = await _bookService.GetAllBooksAsync(pageNumber, pageSize);
+            var parameters = new BookParameters
+            {
+                SearchTerm = searchTerm,
+                MinYear = minYear,
+                MaxYear = maxYear,
+                MinRating = minRating,
+                MaxRating = maxRating,
+                SortBy = sortBy,
+                SortDescending = sortDescending
+            };
+
+            var books = await _bookService.GetAllBooksAsync(pageNumber, pageSize, parameters);
 
             return Ok(new
             {
