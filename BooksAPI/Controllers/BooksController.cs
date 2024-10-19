@@ -1,5 +1,6 @@
 ﻿using BooksAPI.Middleware.CustomException;
 using BooksAPI.Model;
+using BooksAPI.Service;
 using BooksAPI.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -17,6 +18,10 @@ namespace BooksAPI.Controllers
             _bookService = bookService;
         }
 
+        /// <summary>
+        /// Returns a list of books
+        /// </summary>
+        /// <returns>List of books</returns>
         [HttpGet("All")]
         public async Task<IActionResult> GetAllBooks()
         {
@@ -28,7 +33,11 @@ namespace BooksAPI.Controllers
                 Status = true
             });
         }
-
+        /// <summary>
+        /// Returns the book by the specified identifier.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Book</returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBookForId(int id)
         {
@@ -43,6 +52,11 @@ namespace BooksAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Adding a new book
+        /// </summary>
+        /// <param name="books"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> AddBook(Books books)
         {
@@ -72,6 +86,11 @@ namespace BooksAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Deleting an book by identifier
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {
@@ -84,6 +103,19 @@ namespace BooksAPI.Controllers
             {
                 return NotFound(new { Message = ex.Message, Status = false });
             }
+        }
+
+        /// <summary>
+        /// Updating book data by identifier
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="book"></param>
+        /// <returns></returns>
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateBook(int id, [FromBody] Books book)
+        {
+            await _bookService.UpdateBookAsync(id, book);
+            return NoContent();
         }
     }
 }

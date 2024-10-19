@@ -18,6 +18,10 @@ namespace BooksAPI.Controllers
             _authorService = authorService;
         }
 
+        /// <summary>
+        /// Returns a list of authors
+        /// </summary>
+        /// <returns>List of authors</returns>
         [HttpGet]
         public async Task<IActionResult> GetAllAuthors()
         {
@@ -25,6 +29,11 @@ namespace BooksAPI.Controllers
             return Ok(authors);
         }
 
+        /// <summary>
+        /// Returns the author by the specified identifier.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Author</returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAuthor(int id)
         {
@@ -32,6 +41,11 @@ namespace BooksAPI.Controllers
             return Ok(author);
         }
 
+        /// <summary>
+        /// Adding a new author
+        /// </summary>
+        /// <param name="author"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> AddAuthor([FromBody] Authors author)
         {
@@ -39,6 +53,12 @@ namespace BooksAPI.Controllers
             return CreatedAtAction(nameof(GetAuthor), new { id = newAuthor.Id }, newAuthor);
         }
 
+        /// <summary>
+        /// Updating author data by identifier
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="author"></param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAuthor(int id, [FromBody] Authors author)
         {
@@ -46,6 +66,11 @@ namespace BooksAPI.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Deleting an author by identifier
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAuthor(int id)
         {
