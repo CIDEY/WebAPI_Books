@@ -15,8 +15,8 @@
 ## Technologies
 - <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/.NET_Core_Logo.svg/2048px-.NET_Core_Logo.svg.png" alt="ASP.NET Core" width="25" height="25"> ASP.NET Core 6.0
 - <img src="https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg" alt="PostgreSQL" width="25" height="25"> PostgreSQL for database management
-- <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6q-GXwQdPXi7X-f2zs0X1BJArGFvhE9keyw&usqp=CAU" alt="Entity Framework" width="25" height="25"> Entity Framework to communicate with the database
-- <img src="https://static1.smartbear.co/swagger/media/assets/images/swagger_logo.svg" alt="Swagger" width="25" height="25"> Swagger for API testing
+- <img src="https://p7.hiclipart.com/preview/411/817/302/web-development-net-framework-asp-net-mvc-software-framework-microsoft-thumbnail.jpg" alt="Entity Framework" width="25" height="25"> Entity Framework to communicate with the database
+- <img src="https://spng.hippopng.com/20190729/wgx/kisspng-smiley-green-text-messaging-meter-professional-odoo-rest-api-odoo-apps-5d3f7a46db7da5.509542591564441158899.jpg" alt="Swagger" width="25" height="25"> Swagger for API testing
 
 ## Installation and startup
 1. Make sure you have the .NET 6.0 SDK installed.
