@@ -13,10 +13,10 @@
 - Logging
 
 ## Technologies
-- ![ASP.NET Core](https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/.NET_Core_Logo.svg/2048px-.NET_Core_Logo.svg.png) ASP.NET Core 6.0.
-- ![PostgreSQL](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNIa2GjsExd_GZmrCCI1G2ZJ6rGLQZoMa4WA&s) for database management.
-- ![Entity Framework](https://img.shields.io/badge/-Entity%20Framework-green) to communicate with the database.
-- ![Swagger](https://seeklogo.com/images/S/swaggerhub-logo-52BE4455D6-seeklogo.com.png) for API testing.
+- <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/.NET_Core_Logo.svg/2048px-.NET_Core_Logo.svg.png" alt="ASP.NET Core" width="25" height="25"> ASP.NET Core 6.0
+- <img src="https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg" alt="PostgreSQL" width="25" height="25"> PostgreSQL for database management
+- <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6q-GXwQdPXi7X-f2zs0X1BJArGFvhE9keyw&usqp=CAU" alt="Entity Framework" width="25" height="25"> Entity Framework to communicate with the database
+- <img src="https://static1.smartbear.co/swagger/media/assets/images/swagger_logo.svg" alt="Swagger" width="25" height="25"> Swagger for API testing
 
 ## Installation and startup
 1. Make sure you have the .NET 6.0 SDK installed.
