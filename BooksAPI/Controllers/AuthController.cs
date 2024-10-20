@@ -10,15 +10,15 @@ namespace BooksAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : Controller
+    public class AuthController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly IConfiguration _configuration;
+        private readonly ITokenService _tokenService;
 
-        public AuthController(IUserService userService, IConfiguration configuration)
+        public AuthController(IUserService userService, ITokenService tokenService)
         {
             _userService = userService;
-            _configuration = configuration;
+            _tokenService = tokenService;
         }
 
         [HttpPost("login")]
@@ -27,12 +27,9 @@ namespace BooksAPI.Controllers
             var user = await _userService.Authenticate(model.Username, model.Password);
 
             if (user == null)
-                return BadRequest(new
-                {
-                    message = "Username or password is incorrect"
-                });
+                return BadRequest(new { message = "Username or password is incorrect" });
 
-            var token = GenerateJwtToken(user);
+            var token = _tokenService.GenerateJwtToken(user);
 
             return Ok(new
             {
@@ -46,40 +43,15 @@ namespace BooksAPI.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
-            try
+            var user = await _userService.Create(new Model.User
             {
-                var user = await _userService.Create(new Model.User
-                {
-                    Username = model.Username,
-                    Role = "User"
-                }, model.Password);
-                return Ok(new
-                {
-                    message = "Registration successful"
-                });
-            }
-            catch (ArgumentException ex)
+                Username = model.Username,
+                Role = "User"
+            }, model.Password);
+            return Ok(new
             {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        private string GenerateJwtToken(User user)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"]);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.Name, user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, user.Role)
-                }),
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+                message = "Registration successful"
+            });
         }
     }
 }

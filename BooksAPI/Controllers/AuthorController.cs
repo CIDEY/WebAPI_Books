@@ -13,7 +13,7 @@ namespace BooksAPI.Controllers
     [ApiVersion("1.0")]
     [Authorize]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public class AuthorController : Controller
+    public class AuthorController : ControllerBase
     {
         private readonly IAuthorService _authorService;
 

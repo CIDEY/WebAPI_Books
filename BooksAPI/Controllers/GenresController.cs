@@ -13,7 +13,7 @@ namespace BooksAPI.Controllers
     [Authorize]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public class GenresController : Controller
+    public class GenresController : ControllerBase
     {
         private readonly IGenreService _genreService;
 

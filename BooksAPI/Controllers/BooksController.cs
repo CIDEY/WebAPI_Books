@@ -13,7 +13,7 @@ namespace BooksAPI.Controllers
     [Authorize]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public class BooksController : Controller
+    public class BooksController : ControllerBase
     {
         private readonly IBookService _bookService;
 
@@ -79,15 +79,8 @@ namespace BooksAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBookForId(int id)
         {
-            try
-            {
-                var book = await _bookService.GetBookForIdAsync(id);
-                return Ok(new { Book = book, Status = true });
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new { Message = ex.Message, Status = false });
-            }
+            var book = await _bookService.GetBookForIdAsync(id);
+            return Ok(new { Book = book, Status = true });
         }
 
         /// <summary>
@@ -109,20 +102,8 @@ namespace BooksAPI.Controllers
                 });
             }
 
-            try
-            {
-                await _bookService.AddBookAsync(books);
-                return CreatedAtAction(nameof(GetBookForId), new { id = books.Id }, new { Book = books, Status = true });
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(new { Message = ex.Message, Status = false });
-            }
-            catch (Exception ex)
-            {
-                // Логирование исключения
-                return StatusCode(500, new { Message = "An error occurred while processing your request", Status = false });
-            }
+            await _bookService.AddBookAsync(books);
+            return CreatedAtAction(nameof(GetBookForId), new { id = books.Id }, new { Book = books, Status = true });
         }
 
         /// <summary>
@@ -133,15 +114,8 @@ namespace BooksAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {
-            try
-            {
-                await _bookService.DeleteBookAsync(id);
-                return NoContent();
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new { Message = ex.Message, Status = false });
-            }
+            await _bookService.DeleteBookAsync(id);
+            return NoContent();
         }
 
         /// <summary>
