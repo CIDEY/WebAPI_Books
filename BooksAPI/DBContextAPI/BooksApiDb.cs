@@ -10,5 +10,6 @@ namespace BooksAPI.DBContextAPI
         public DbSet<Books> Books { get; set; }
         public DbSet<Genres> Genres { get; set; }
         public DbSet<Authors> Authors { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }

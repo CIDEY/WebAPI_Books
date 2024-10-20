@@ -3,12 +3,14 @@ using BooksAPI.Model;
 using BooksAPI.Model.FilterSort;
 using BooksAPI.Service;
 using BooksAPI.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace BooksAPI.Controllers
 {
     [ApiController]
+    [Authorize]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
     public class BooksController : Controller
@@ -93,6 +95,7 @@ namespace BooksAPI.Controllers
         /// </summary>
         /// <param name="books"></param>
         /// <returns></returns>
+        [Authorize(Roles = "User")]
         [HttpPost]
         public async Task<IActionResult> AddBook(Books books)
         {

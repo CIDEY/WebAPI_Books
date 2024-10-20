@@ -5,11 +5,13 @@ using BooksAPI.Model;
 using BooksAPI.Service;
 using BooksAPI.Service.Interface;
 using BooksAPI.Model.FilterSort;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BooksAPI.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
+    [Authorize]
     [Route("api/v{version:apiVersion}/[controller]")]
     public class AuthorController : Controller
     {
