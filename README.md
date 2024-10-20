@@ -18,6 +18,9 @@
 - <img src="https://static.gunnarpeipman.com/wp-content/uploads/2020/09/dotnet-featured.png" alt="Entity Framework" width="25" height="25"> Entity Framework to communicate with the database
 - <img src="https://spng.hippopng.com/20190729/wgx/kisspng-smiley-green-text-messaging-meter-professional-odoo-rest-api-odoo-apps-5d3f7a46db7da5.509542591564441158899.jpg" alt="Swagger" width="25" height="25"> Swagger for API testing
 
+## Scheme
+![API circuit design](https://github.com/CIDEY/WebAPI_Books/blob/main/schema.png)
+
 ## Installation and startup
 1. Make sure you have the .NET 6.0 SDK installed.
 2. Clone the repository:
