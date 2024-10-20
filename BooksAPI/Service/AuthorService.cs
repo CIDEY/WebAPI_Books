@@ -4,55 +4,66 @@ using BooksAPI.Middleware.CustomException;
 using BooksAPI.Model;
 using BooksAPI.Service.Interface;
 using BooksAPI.Model.FilterSort;
+using Microsoft.AspNetCore.Server.HttpSys;
 
 namespace BooksAPI.Service
 {
     public class AuthorService : IAuthorService
     {
         private readonly BooksApiDb _context;
-        public AuthorService(BooksApiDb context)
+        private readonly ICacheService _cacheService;
+        public AuthorService(BooksApiDb context, ICacheService cacheService)
         {
             _context = context;
+            _cacheService = cacheService;
         }
 
         public async Task<PaginatedList<Authors>> GetAllAuthorsAsync(int pageNumber, int pageSize, AuthorParameters parameters)
         {
-            var query = _context.Authors.AsNoTracking();
+            string cacheKey = $"author_page_{pageNumber}_size_{pageSize}_params_{parameters.SearchTerm}_{parameters.SortBy}_{parameters.SortDescending}";
 
-            // Применяем фильтр
-            if (!string.IsNullOrWhiteSpace(parameters.SearchTerm))
-                query = query.Where(a => a.Name.Contains(parameters.SearchTerm));
-
-            // Применяем сортировку
-            if (!string.IsNullOrWhiteSpace(parameters.SortBy))
+            return await _cacheService.GetOrCreate(cacheKey, async () =>
             {
-                switch (parameters.SortBy.ToLower())
+                var query = _context.Authors.AsNoTracking();
+
+                // Применяем фильтр
+                if (!string.IsNullOrWhiteSpace(parameters.SearchTerm))
+                    query = query.Where(a => a.Name.Contains(parameters.SearchTerm));
+
+                // Применяем сортировку
+                if (!string.IsNullOrWhiteSpace(parameters.SortBy))
                 {
-                    case "name":
-                        query = parameters.SortDescending
-                            ? query.OrderByDescending(a => a.Name)
-                            : query.OrderBy(a => a.Name);
-                        break;
-                    default:
-                        query = query.OrderBy(a => a.Id);
-                        break;
+                    switch (parameters.SortBy.ToLower())
+                    {
+                        case "name":
+                            query = parameters.SortDescending
+                                ? query.OrderByDescending(a => a.Name)
+                                : query.OrderBy(a => a.Name);
+                            break;
+                        default:
+                            query = query.OrderBy(a => a.Id);
+                            break;
+                    }
                 }
-            }
-            else
-                query = query.OrderBy(a => a.Id);
+                else
+                    query = query.OrderBy(a => a.Id);
 
-            var count = await query.CountAsync();
-            var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                var count = await query.CountAsync();
+                var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
 
-            return new PaginatedList<Authors>(items, count, pageNumber, pageSize);
+                return new PaginatedList<Authors>(items, count, pageNumber, pageSize);
+            }, TimeSpan.FromMinutes(10));
         }
 
         public async Task<Authors> GetAuthorForIdAsync(int id)
         {
-            var author = await _context.Authors.FindAsync(id);
-            if (author == null)
-                throw new NotFoundException($"Author with ID {id} not found.");
-            return author;
+            return await _cacheService.GetOrCreate($"author_{id}", async () =>
+            {
+                var author = await _context.Authors.FindAsync(id);
+                if (author == null)
+                    throw new NotFoundException($"Author with ID {id} not found.");
+                return author;
+            }, TimeSpan.FromHours(1));
         }
 
         public async Task<Authors> AddAuthorAsync(Authors author)
@@ -65,6 +76,8 @@ namespace BooksAPI.Service
 
             await _context.Authors.AddAsync(author);
             await _context.SaveChangesAsync();
+
+            _cacheService.Remove("books_");
 
             return author;
         }
@@ -81,6 +94,9 @@ namespace BooksAPI.Service
             author.Name = updatedAuthor.Name;
 
             await _context.SaveChangesAsync();
+
+            _cacheService.Remove($"book_{id}");
+            _cacheService.Remove("books_");
         }
 
         public async Task DeleteAuthorAsync(int id)
@@ -94,6 +110,9 @@ namespace BooksAPI.Service
 
             _context.Authors.Remove(author);
             await _context.SaveChangesAsync();
+
+            _cacheService.Remove($"book_{id}");
+            _cacheService.Remove("book_");
         }
     }
 }

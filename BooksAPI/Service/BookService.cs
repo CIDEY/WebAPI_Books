@@ -14,88 +14,98 @@ namespace BooksAPI.Service
     public class BookService : IBookService
     {
         private readonly BooksApiDb _context;
-        public BookService(BooksApiDb context)
+        private readonly ICacheService _cacheService;
+        public BookService(BooksApiDb context, ICacheService cacheService)
         {
             _context = context;
+            _cacheService = cacheService;
         }
 
         public async Task<PaginatedList<Books>> GetAllBooksAsync(int pageNumber, int pageSize, BookParameters parameters)
         {
-            var query = _context.Books
-                .Include(b => b.Author)
-                .Include(b => b.Genres)
-                .AsNoTracking();
+            string cacheKey = $"books_page_{pageNumber}_size_{pageSize}_params_{parameters.SearchTerm}_{parameters.MinYear}_{parameters.MaxYear}_{parameters.MinRating}_{parameters.MaxRating}_{parameters.SortBy}_{parameters.SortDescending}";
 
-            // Применяем фильтры
-            if (!string.IsNullOrWhiteSpace(parameters.SearchTerm))
+            return await _cacheService.GetOrCreate(cacheKey, async () =>
             {
-                query = query.Where(b => b.Title.Contains(parameters.SearchTerm) ||
-                                         b.Author.Name.Contains(parameters.SearchTerm) ||
-                                         b.Genres.Name.Contains(parameters.SearchTerm));
-            }
+                var query = _context.Books
+                    .Include(b => b.Author)
+                    .Include(b => b.Genres)
+                    .AsNoTracking();
 
-            if (parameters.MinYear.HasValue)
-                query = query.Where(b => b.PublicationYear >= parameters.MinYear.Value);
-
-            if (parameters.MaxYear.HasValue)
-                query = query.Where(b => b.PublicationYear <= parameters.MaxYear.Value);
-
-            if (parameters.MinRating.HasValue)
-                query = query.Where(b => b.Rating >= parameters.MinRating.Value);
-
-            if (parameters.MaxRating.HasValue)
-                query = query.Where(b => b.Rating <= parameters.MaxRating.Value);
-
-            // Применяем сортировку
-            if (!string.IsNullOrWhiteSpace(parameters.SortBy))
-            {
-                switch (parameters.SortBy.ToLower())
+                // Применяем фильтры
+                if (!string.IsNullOrWhiteSpace(parameters.SearchTerm))
                 {
-                    case "title":
-                        query = parameters.SortDescending
-                            ? query.OrderByDescending(b => b.Title)
-                            : query.OrderBy(b => b.Title);
-                        break;
-                    case "year":
-                        query = parameters.SortDescending
-                            ? query.OrderByDescending(b => b.PublicationYear)
-                            : query.OrderBy(b => b.PublicationYear);
-                        break;
-                    case "rating":
-                        query = parameters.SortDescending
-                            ? query.OrderByDescending(b => b.Rating)
-                            : query.OrderBy(b => b.Rating);
-                        break;
-                    case "author":
-                        query = parameters.SortDescending
-                            ? query.OrderByDescending(b => b.Author.Name)
-                            : query.OrderBy(b => b.Author.Name);
-                        break;
-                    default:
-                        query = query.OrderBy(b => b.Id);
-                        break;
+                    query = query.Where(b => b.Title.Contains(parameters.SearchTerm) ||
+                                             b.Author.Name.Contains(parameters.SearchTerm) ||
+                                             b.Genres.Name.Contains(parameters.SearchTerm));
                 }
-            }
-            else
-                query = query.OrderBy(b => b.Id);
 
-            var count = await query.CountAsync();
-            var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                if (parameters.MinYear.HasValue)
+                    query = query.Where(b => b.PublicationYear >= parameters.MinYear.Value);
 
-            return new PaginatedList<Books>(items, count, pageNumber, pageSize);
+                if (parameters.MaxYear.HasValue)
+                    query = query.Where(b => b.PublicationYear <= parameters.MaxYear.Value);
+
+                if (parameters.MinRating.HasValue)
+                    query = query.Where(b => b.Rating >= parameters.MinRating.Value);
+
+                if (parameters.MaxRating.HasValue)
+                    query = query.Where(b => b.Rating <= parameters.MaxRating.Value);
+
+                // Применяем сортировку
+                if (!string.IsNullOrWhiteSpace(parameters.SortBy))
+                {
+                    switch (parameters.SortBy.ToLower())
+                    {
+                        case "title":
+                            query = parameters.SortDescending
+                                ? query.OrderByDescending(b => b.Title)
+                                : query.OrderBy(b => b.Title);
+                            break;
+                        case "year":
+                            query = parameters.SortDescending
+                                ? query.OrderByDescending(b => b.PublicationYear)
+                                : query.OrderBy(b => b.PublicationYear);
+                            break;
+                        case "rating":
+                            query = parameters.SortDescending
+                                ? query.OrderByDescending(b => b.Rating)
+                                : query.OrderBy(b => b.Rating);
+                            break;
+                        case "author":
+                            query = parameters.SortDescending
+                                ? query.OrderByDescending(b => b.Author.Name)
+                                : query.OrderBy(b => b.Author.Name);
+                            break;
+                        default:
+                            query = query.OrderBy(b => b.Id);
+                            break;
+                    }
+                }
+                else
+                    query = query.OrderBy(b => b.Id);
+
+                var count = await query.CountAsync();
+                var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
+                return new PaginatedList<Books>(items, count, pageNumber, pageSize);
+            }, TimeSpan.FromMinutes(10));
         }
 
         public async Task<Books> GetBookForIdAsync(int id)
         {
-            var book = await _context.Books
+            return await _cacheService.GetOrCreate($"book_{id}", async () =>
+            {
+                var book = await _context.Books
                 .Include(b => b.Author)
                 .Include(b => b.Genres)
                 .FirstOrDefaultAsync(b => b.Id == id);
 
-            if (book == null)
-                throw new NotFoundException($"Book with ID {id} not found.");
+                if (book == null)
+                    throw new NotFoundException($"Book with ID {id} not found.");
 
-            return book;
+                return book;
+            }, TimeSpan.FromHours(1));
         }
 
         public async Task<Books> AddBookAsync(Books book)
@@ -114,6 +124,8 @@ namespace BooksAPI.Service
 
             await _context.Books.AddAsync(book);
             await _context.SaveChangesAsync();
+
+            _cacheService.Remove("books_");
 
             return book;
         }
@@ -141,6 +153,9 @@ namespace BooksAPI.Service
             book.Rating = updatedBook.Rating;
 
             await _context.SaveChangesAsync();
+
+            _cacheService.Remove($"book_{id}");
+            _cacheService.Remove("books_");
         }
 
         public async Task DeleteBookAsync(int id)
@@ -151,7 +166,9 @@ namespace BooksAPI.Service
 
             _context.Books.Remove(book);
             await _context.SaveChangesAsync();
-        }
 
+            _cacheService.Remove($"book_{id}");
+            _cacheService.Remove("books_");
+        }
     }
 }

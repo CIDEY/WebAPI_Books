@@ -15,10 +15,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddTransient<IGenreService, GenreService>();
 builder.Services.AddTransient<IBookService, BookService>();
 builder.Services.AddTransient<IAuthorService, AuthorService>();
+builder.Services.AddSingleton<ICacheService, CacheService>();
 
 builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddApiVersioning(options =>
 {
