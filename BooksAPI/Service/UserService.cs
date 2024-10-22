@@ -1,4 +1,5 @@
 ﻿using BooksAPI.DBContextAPI;
+using BooksAPI.Middleware.CustomException;
 using BooksAPI.Model;
 using BooksAPI.Service.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -65,6 +66,34 @@ namespace BooksAPI.Service
         public async Task<User> GetById(int id)
         {
             return await _context.Users.FindAsync(id);
+        }
+
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            var existUser = await _context.Users.FindAsync(user.Id);
+
+            if (existUser != null)
+                throw new NotFoundException($"User with ID {user.Id} not found.");
+
+            existUser.Username = user.Username;
+            existUser.Role = user.Role;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteUserAsync(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                throw new NotFoundException($"User with ID {id} not found");
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
         }
     }
 }
