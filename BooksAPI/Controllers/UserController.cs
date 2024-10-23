@@ -27,7 +27,7 @@ namespace BooksAPI.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = nameof(UserRole.Administrator))]
         public async Task<IActionResult> UpdateUser (int id, [FromBody] UpdateUserDto updateUserDto)
         {
             if (id != updateUserDto.Id)
@@ -40,7 +40,7 @@ namespace BooksAPI.Controllers
         }
 
         [HttpDelete]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = nameof(UserRole.Administrator))]
         public async Task<IActionResult> DeleteUser(int id)
         {
             await _userService.DeleteUserAsync(id);

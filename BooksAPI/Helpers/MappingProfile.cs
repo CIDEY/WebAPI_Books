@@ -11,7 +11,7 @@ namespace BooksAPI.Helpers
             {
                 Id = user.Id,
                 Username = user.Username,
-                Role = user.Role
+                Role = user.Role.ToString()
             };
         }
 

@@ -49,7 +49,7 @@ namespace BooksAPI.Service
                 throw new ArgumentException("Username \"" + user.Username + "\" is already taken");
 
             user.PasswordHash = CreatePasswordHash(password);
-            user.Role = "User";
+            user.Role = UserRole.User;
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
             return user;

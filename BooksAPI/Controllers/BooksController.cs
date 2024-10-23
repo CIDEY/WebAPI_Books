@@ -88,7 +88,7 @@ namespace BooksAPI.Controllers
         /// </summary>
         /// <param name="books"></param>
         /// <returns></returns>
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = nameof(UserRole.User))]
         [HttpPost]
         public async Task<IActionResult> AddBook(Books books)
         {

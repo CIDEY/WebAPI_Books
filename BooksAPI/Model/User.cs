@@ -11,6 +11,6 @@ namespace BooksAPI.Model
         [Required]
         public string PasswordHash { get; set; }
         [Required]
-        public string Role { get; set; }
+        public UserRole Role { get; set; }
     }
 }

@@ -46,7 +46,7 @@ namespace BooksAPI.Controllers
             var user = await _userService.Create(new Model.User
             {
                 Username = model.Username,
-                Role = "User"
+                Role = UserRole.User
             }, model.Password);
             return Ok(new
             {
