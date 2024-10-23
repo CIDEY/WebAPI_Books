@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTO\Books\" />
+    <Folder Include="Новая папка\" />
   </ItemGroup>
 
 </Project>

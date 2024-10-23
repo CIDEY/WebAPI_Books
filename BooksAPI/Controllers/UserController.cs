@@ -1,4 +1,6 @@
-﻿using BooksAPI.Model;
+﻿using BooksAPI.DTO.User;
+using BooksAPI.Helpers;
+using BooksAPI.Model;
 using BooksAPI.Service.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,20 +19,22 @@ namespace BooksAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetAllUsers()
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
         {
             var users = await _userService.GetAllUsersAsync();
-            return Ok(users);
+            var usersDto = users.Select(x => x.ToDto());
+            return Ok(usersDto);
         }
 
         [HttpPut]
         [Authorize(Roles = "Administrator")]
-        public async Task<IActionResult> UpdateUser (int id, [FromBody] User updateUser)
+        public async Task<IActionResult> UpdateUser (int id, [FromBody] UpdateUserDto updateUserDto)
         {
-            if (id != updateUser.Id)
+            if (id != updateUserDto.Id)
                 return BadRequest("User ID mismatch.");
 
-            await _userService.UpdateUserAsync(updateUser);
+            var user = updateUserDto.ToEntity();
+            await _userService.UpdateUserAsync(user);
 
             return NoContent();
         }
