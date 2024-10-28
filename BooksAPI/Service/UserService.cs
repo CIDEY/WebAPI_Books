@@ -17,9 +17,6 @@ namespace BooksAPI.Service
         }
         public async Task<User> Authenticate(string username, string password)
         {
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-                return null;
-
             var user = await _context.Users.SingleOrDefaultAsync(x => x.Username == username);
 
             if (user == null)

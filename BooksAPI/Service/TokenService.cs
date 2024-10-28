@@ -20,10 +20,6 @@ namespace BooksAPI.Service
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"]);
-
-            // Получаем срок действия токена из конфигурации
-            var expirationDays = _configuration.GetValue<int>("Jwt:ExpirationDays");
-
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
@@ -31,7 +27,7 @@ namespace BooksAPI.Service
                     new Claim(ClaimTypes.Name, user.Id.ToString()),
                     new Claim(ClaimTypes.Role, user.Role.ToString())
                 }),
-                Expires = DateTime.UtcNow.AddDays(expirationDays),
+                Expires = DateTime.UtcNow.AddDays(_configuration.GetValue<int>("Jwt:ExpirationDays")),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);

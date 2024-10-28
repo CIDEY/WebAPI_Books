@@ -23,9 +23,10 @@ namespace BooksAPI.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto model)
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<IActionResult> Login([FromForm] LoginDto loginDto)
         {
-            var user = await _userService.Authenticate(model.Username, model.Password);
+            var user = await _userService.Authenticate(loginDto.Username, loginDto.Password);
 
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
@@ -34,10 +35,9 @@ namespace BooksAPI.Controllers
 
             return Ok(new
             {
-                Id = user.Id,
-                Username = user.Username,
-                Role = user.Role,
-                Token = token
+                access_token = token,
+                token_type = "Bearer",
+                expires_in = 3600 // время жизни токена в секундах
             });
         }
 
