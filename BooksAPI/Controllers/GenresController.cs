@@ -6,6 +6,7 @@ using BooksAPI.Service.Interface;
 using BooksAPI.Service;
 using BooksAPI.Model.FilterSort;
 using Microsoft.AspNetCore.Authorization;
+using BooksAPI.DTO.Genre;
 
 namespace BooksAPI.Controllers
 {
@@ -50,10 +51,15 @@ namespace BooksAPI.Controllers
             };
 
             var genres = await _genreService.GetAllGenresAsync(pageNumber, pageSize, parameters);
+            var genresDto = genres.Items.Select(g => new GenreDto
+            {
+                Id = g.Id,
+                Name = g.Name
+            });
 
             return Ok(new
             {
-                Genres = genres.Items,
+                Genres = genresDto,
                 genres.PageNumber,
                 genres.TotalPages,
                 genres.TotalCount,

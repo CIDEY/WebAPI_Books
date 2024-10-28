@@ -1,4 +1,5 @@
-﻿using BooksAPI.Middleware.CustomException;
+﻿using BooksAPI.DTO.Book;
+using BooksAPI.Middleware.CustomException;
 using BooksAPI.Model;
 using BooksAPI.Model.FilterSort;
 using BooksAPI.Service;
@@ -59,9 +60,20 @@ namespace BooksAPI.Controllers
 
             var books = await _bookService.GetAllBooksAsync(pageNumber, pageSize, parameters);
 
+            var booksDto = books.Items.Select(b => new BookDto
+            {
+                Id = b.Id,
+                Title = b.Title,
+                Description = b.Description,
+                AuthorName = b.Author.Name,
+                GenreName = b.Genres.Name,
+                PublicationYear = b.PublicationYear,
+                Rating = b.Rating
+            });
+
             return Ok(new
             {
-                Books = books.Items,
+                Books = booksDto,
                 books.PageNumber,
                 books.TotalPages,
                 books.TotalCount,
@@ -90,20 +102,31 @@ namespace BooksAPI.Controllers
         /// <returns></returns>
         [Authorize(Roles = nameof(UserRole.User))]
         [HttpPost]
-        public async Task<IActionResult> AddBook(Books books)
+        public async Task<IActionResult> AddBook([FromBody] CreateBookDto createBookDto)
         {
-            if (!ModelState.IsValid)
+            var book = new Books
             {
-                return BadRequest(new
-                {
-                    Message = "Invalid input data",
-                    Errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)),
-                    Status = false
-                });
-            }
+                Title = createBookDto.Title,
+                Description = createBookDto.Description,
+                AuthorId = createBookDto.AuthorId,
+                GenreId = createBookDto.GenreId,
+                PublicationYear = createBookDto.PublicationYear,
+                Rating = createBookDto.Rating
+            };
 
-            await _bookService.AddBookAsync(books);
-            return CreatedAtAction(nameof(GetBookForId), new { id = books.Id }, new { Book = books, Status = true });
+            var addedBook = await _bookService.AddBookAsync(book);
+            var bookDto = new BookDto
+            {
+                Id = addedBook.Id,
+                Title = addedBook.Title,
+                Description = addedBook.Description,
+                AuthorName = addedBook.Author.Name,
+                GenreName = addedBook.Genres.Name,
+                PublicationYear = addedBook.PublicationYear,
+                Rating = addedBook.Rating
+            };
+
+            return CreatedAtAction(nameof(GetBookForId), new { id = bookDto.Id }, new { Book = bookDto, Status = true });
         }
 
         /// <summary>
@@ -125,8 +148,22 @@ namespace BooksAPI.Controllers
         /// <param name="book"></param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBook(int id, [FromBody] Books book)
+        public async Task<IActionResult> UpdateBook(int id, [FromBody] UpdateBookDto updateBook)
         {
+            if (id != updateBook.Id)
+                return BadRequest("Book ID mismatch.");
+
+            var book = new Books
+            {
+                Id = updateBook.Id,
+                Title = updateBook.Title,
+                Description = updateBook.Description,
+                AuthorId = updateBook.AuthorId,
+                GenreId = updateBook.GenreId,
+                PublicationYear = updateBook.PublicationYear,
+                Rating = updateBook.Rating
+            };
+
             await _bookService.UpdateBookAsync(id, book);
             return NoContent();
         }

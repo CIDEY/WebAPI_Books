@@ -1,5 +1,8 @@
 ﻿namespace BooksAPI.DTO.User
 {
+    /// <summary>
+    /// To update user data
+    /// </summary>
     public class UpdateUserDto
     {
         public int Id { get; set; }

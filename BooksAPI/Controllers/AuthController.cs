@@ -23,7 +23,7 @@ namespace BooksAPI.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
             var user = await _userService.Authenticate(model.Username, model.Password);
 

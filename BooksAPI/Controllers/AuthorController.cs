@@ -6,6 +6,7 @@ using BooksAPI.Service;
 using BooksAPI.Service.Interface;
 using BooksAPI.Model.FilterSort;
 using Microsoft.AspNetCore.Authorization;
+using BooksAPI.DTO.Author;
 
 namespace BooksAPI.Controllers
 {
@@ -50,10 +51,15 @@ namespace BooksAPI.Controllers
             };
 
             var authors = await _authorService.GetAllAuthorsAsync(pageNumber, pageSize, parameters);
+            var authorsDto = authors.Items.Select(a => new AuthorDto
+            {
+                Id = a.Id,
+                Name = a.Name
+            });
 
             return Ok(new
             {
-                Authors = authors.Items,
+                Authors = authorsDto,
                 authors.PageNumber,
                 authors.TotalPages,
                 authors.TotalCount,
