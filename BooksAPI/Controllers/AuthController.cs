@@ -1,4 +1,5 @@
-﻿using BooksAPI.Model;
+﻿using BooksAPI.DTO.User;
+using BooksAPI.Model;
 using BooksAPI.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -41,16 +42,22 @@ namespace BooksAPI.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        public async Task<IActionResult> Register([FromBody] RegisterUserDto registerUserDto)
         {
-            var user = await _userService.Create(new Model.User
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = new User
             {
-                Username = model.Username,
-                Role = UserRole.User
-            }, model.Password);
+                Username = registerUserDto.Username,
+                Role = UserRole.Administrator
+            };
+
+            var createdUser = await _userService.Create(user, registerUserDto.Password);
             return Ok(new
             {
-                message = "Registration successful"
+                message = "Registration successful",
+                UserId = createdUser.Id
             });
         }
     }
