@@ -57,21 +57,21 @@ The API uses JWT tokens for authorization. To obtain a token you need to:
 3. Use the received token in the header Authorization: Bearer {token}
 
 ## API Endpoints
-# Books
+### Books
 - GET /api/v1/books - Get all books (with pagination and filtering)
 - GET /api/v1/books/{id} - Get the book by ID
 - POST /api/v1/books - Add a new book
 - PUT /api/v1/books/{id} - Update book
 - DELETE /api/v1/books/{id} - Delete a book
 
-# Authors
+### Authors
 - GET /api/v1/authors - Get all the authors
 - GET /api/v1/authors/{id} - Get author by ID
 - POST /api/v1/authors - Add a new author
 - PUT /api/v1/authors/{id} - Update the author
 - DELETE /api/v1/authors/{id} - Delete the author
 
-# Жанры
+### Жанры
 - GET /api/v1/genres - Get all genres
 - GET /api/v1/genres/{id} - Get genre by ID
 - POST /api/v1/genres - Add a new genre
