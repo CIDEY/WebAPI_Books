@@ -49,7 +49,7 @@ dotnet run
 
 The API will be available at `https://localhost:5001` (or `http://localhost:5000`).
 
-## Авторизация
+## Authorization
 The API uses JWT tokens for authorization. To obtain a token you need to:
 
 1. Register a user via POST /api/Auth/register
