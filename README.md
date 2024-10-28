@@ -71,18 +71,18 @@ The API uses JWT tokens for authorization. To obtain a token you need to:
 - PUT /api/v1/authors/{id} - Update the author
 - DELETE /api/v1/authors/{id} - Delete the author
 
-### Жанры
+### Genres
 - GET /api/v1/genres - Get all genres
 - GET /api/v1/genres/{id} - Get genre by ID
 - POST /api/v1/genres - Add a new genre
 - PUT /api/v1/genres/{id} - Update the genre
 - DELETE /api/v1/genres/{id} - Delete genre
 
-### API Documentation
+## API Documentation
 Once the application is running, the Swagger documentation will be available at:
 `https://localhost:5001/swagger`.
 
-### Error handling
+## Error handling
 The API uses centralised error handling and returns structured JSON responses with error information:
 ```json
 {
@@ -94,17 +94,17 @@ The API uses centralised error handling and returns structured JSON responses wi
 }
 ```
 
-### Caching
+## Caching
 The API uses built-in caching to optimize performance. The cache is automatically invalidated when data changes.
 
-### Validation
+## Validation
 Input validation is implemented at the model level using validation attributes, and at the service level for more complex checks.
 
-### Logging
+## Logging
 Logging is configured in the project using the built-in ASP.NET Core logging provider. Logs are output to the console and debug window.
 
-### Contribution
+## Contribution
 Pull-requests are welcome. For major changes, please open an issue first to discuss proposed changes.
 
-### License
+## License
 [MIT](https://choosealicense.com/licenses/mit/)
